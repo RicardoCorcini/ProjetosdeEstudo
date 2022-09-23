@@ -1,0 +1,2 @@
+Git clone  - Clonar diretorio do github
+Git status verificar status do projeto
