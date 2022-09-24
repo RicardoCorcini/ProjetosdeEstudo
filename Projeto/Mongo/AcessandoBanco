@@ -1,0 +1,154 @@
+from http import client
+from pymongo import collation
+from pymongo import MongoClient
+
+
+def get_database():
+    CONNECTION_STRING = "mongodb+srv://root:root@cluster0.rgzs1.mongodb.net/"
+    client = MongoClient(CONNECTION_STRING)
+    print("Conectado com  sucesso")
+    return client['soul_code_data']
+
+
+dbname = get_database()
+collation_name = dbname['itens_soulcode']
+
+
+def mongo_inserir_dados():
+    dbname = get_database()
+    collation_name = dbname['itens_soulcode']
+
+    item_1 = {
+        "_id": "SC001",
+        "nome_item": "Livro",
+        "desconto_maximo": "10%",
+        "REF": "RRGSFF001",
+        "preco": 340,
+        "categoria": "Físico"
+    }
+
+    item_2 = {
+        "_id": "SC002",
+        "nome_item": "Camera",
+        "desconto_maximo": "15%",
+        "REF": "RRGSJ001S4",
+        "preco": 540,
+        "categoria": "Físico"
+    }
+
+    item_3 = {
+        "nome_item": "Microfone",
+        "desconto_maximo": "12%",
+        "REF": "RRGSJ0FRSW7854R",
+        "preco": 300,
+        "categoria": "Físico"
+    }
+
+    item_4 = {
+        "nome_item": "Aula Remota",
+        "desconto_maximo": "19%",
+        "REF": "RRGS844W7854R",
+        "preco": 400,
+        "categoria": "Online"
+    }
+
+    item_5 = {
+        "_id": "SC005",
+        "nome_item": "Apostila",
+        "desconto_maximo": "19%"
+    }
+
+    collation_name.insert_many([item_1, item_2, item_3])
+    collation_name.insert_one(item_4)
+    collation_name.insert_one(item_5)
+    print("Dados inseridos!")
+
+
+def mongo_listar_dados():
+    dbname = get_database()
+    collation_name = dbname['itens_soulcode']
+    print('-----------------------------------')
+
+    listar_todos_itens = collation_name.find()
+    for item in listar_todos_itens:
+        print(item)
+
+    print('-----------------------------------')
+
+    listar_um_item_especifico = collation_name.find({"categoria": "OnLine "})
+
+    for item1 in listar_um_item_especifico:
+        print(item1[1])
+
+    print('-----------------------------------')
+    listar_item_com_criterio_em_outro = collation_name.find(
+        {"$or": [{"caegoria": "Online"}, {"categoria": "físico"}]})
+    for item2 in listar_item_com_criterio_em_outro:
+        print(item2)
+
+    print('-----------------------------------')
+
+    listar_regex = collation_name.find({"nome_item": {"$regex": "^Mi"}})
+    for item3 in listar_regex:
+        print(item3)
+
+    print('-------item 4----------------------------')
+    listar_detalhes_item = collation_name.distinct("nome_item")
+    for item4 in listar_detalhes_item:
+        print(item4)
+    print('-------item 5----------------------------')
+
+    listar_limitado = collation_name.find({"categoria": "Físico"}).limit(1)
+    for item5 in listar_limitado:
+        print(item5)
+
+    print('-------item 6----------------------------')
+    listar_Pulando = collation_name.find(
+        {}, {"nome_item", "desconto_maximo"}).skip(2)
+    for item6 in listar_Pulando:
+        print(item6)
+
+
+def mongo_atualisar_dados():
+
+    dbname = get_database()
+    collation_name = dbname['itens_soulcode']
+
+    print('-------Atualisar dados----------------------------')
+
+    collation_name.update_many({"desconto_maximo": "10%"},
+                               {"$set": {"desconto_maximo": "35%"}})
+
+    detalhes_item = collation_name.find()
+    for item7 in detalhes_item:
+        print(item7)
+
+    print('-------Atualisar item 8----------------------------')
+
+    collation_name.update_one({"nome_item": {"$regex": "Aula"}}, {
+                              "$set": {"desconto_maximo": "100%"}})
+    detalhes_item_100 = collation_name.find()
+    for item8 in detalhes_item_100:
+        print(item8)
+
+
+def mongo_excluir_dados():
+    print('-------Excluir item 9----------------------------')
+    # Excluir documeto cujo id é conhecido
+    collation_name.delete_one({"_id": "SC001"})
+    detalhes_item = collation_name.find()
+    for item9 in detalhes_item:
+        print(item9)
+
+    print('-------Excluir item 10---------------------------')
+
+    # Deletar base de dados
+
+    collation_name.drop()
+    dbname.drop_collection()
+
+
+# mongo_inserir_dados()
+# mongo_listar_dados()
+# mongo_atualisar_dados()
+mongo_excluir_dados()
