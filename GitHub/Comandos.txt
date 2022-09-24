@@ -1,5 +1,0 @@
-Git clone  - Clonar diretorio do github
-Git status - verificar status do projeto
-git add . -adicionar todos arquivos para comitar no git
-git commit -m "Adicionar comentario"
-git push origin main - enviar arquvos para git
